@@ -40,7 +40,7 @@
 >
   <a-camera position="0 0 0"></a-camera>
 
-  <!-- Target 0 → Video 1 -->
+  <!-- Target 0 → Video -->
   <a-entity mindar-image-target="targetIndex: 0">
     <a-video
       src="#video1"
@@ -50,36 +50,44 @@
     ></a-video>
   </a-entity>
 
-  <!-- Target 1 → Video 2 -->
+  <!-- Target 1 → 3D Model (AR-ERB.glb) -->
   <a-entity mindar-image-target="targetIndex: 1">
-    <a-video
-      src="#video2"
-      width="1"
-      height="0.6"
+    <a-gltf-model
+      src="./models/AR-ERB.glb"
       position="0 0 0"
-    ></a-video>
+      scale="0.5 0.5 0.5"
+      rotation="0 0 0"
+    ></a-gltf-model>
   </a-entity>
 
-  <!-- Video elements -->
-  <video id="video1" src="./videos/video1.mp4" loop muted playsinline crossorigin="anonymous"></video>
-  <video id="video2" src="./videos/video2.mp4" loop muted playsinline crossorigin="anonymous"></video>
+  <!-- Video element -->
+  <video
+    id="video1"
+    src="./videos/video1.mp4"
+    loop
+    muted
+    playsinline
+    crossorigin="anonymous"
+  ></video>
 </a-scene>
 
 <script>
-  const video1 = document.querySelector("#video1");
-  const video2 = document.querySelector("#video2");
+  const video = document.querySelector("#video1");
 
   document.addEventListener("DOMContentLoaded", () => {
     const target0 = document.querySelector('[mindar-image-target="targetIndex: 0"]');
-    const target1 = document.querySelector('[mindar-image-target="targetIndex: 1"]');
 
-    // Target 0
-    target0.addEventListener("targetFound", () => video1.play());
-    target0.addEventListener("targetLost", () => video1.pause());
+    target0.addEventListener("targetFound", () => {
+      video.play();
+    });
 
-    // Target 1
-    target1.addEventListener("targetFound", () => video2.play());
-    target1.addEventListener("targetLost", () => video2.pause());
+    target0.addEventListener("targetLost", () => {
+      video.pause();
+    });
+  });
+
+  document.addEventListener("click", () => {
+    if (video.paused) video.play();
   });
 </script>
 
