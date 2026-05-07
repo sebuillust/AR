@@ -50,16 +50,6 @@
     ></a-video>
   </a-entity>
 
-  <!-- Target 1 → 3D Model (AR-ERB.glb) -->
-  <a-entity mindar-image-target="targetIndex: 1">
-    <a-gltf-model
-      src="./models/AR-ERB.glb"
-      position="0 0 0"
-      scale="0.5 0.5 0.5"
-      rotation="0 0 0"
-    ></a-gltf-model>
-  </a-entity>
-
   <!-- Video element -->
   <video
     id="video1"
@@ -69,6 +59,31 @@
     playsinline
     crossorigin="anonymous"
   ></video>
+
+  <a-assets>
+    <!-- WebM 影片 -->
+    <video
+      id="webmVideo"
+      src="./videos/ERB-Scene1.webm"
+      loop
+      muted
+      playsinline
+      crossorigin="anonymous"
+    ></video>
+
+    <!-- GLB 模型（裡面有 VideoPlane） -->
+    <a-asset-item id="model" src="./models/yourModel.glb"></a-asset-item>
+  </a-assets>
+
+  <a-camera position="0 0 0"></a-camera>
+
+  <!-- Target 0：顯示 GLB + WebM -->
+  <a-entity id="ar-anchor" mindar-image-target="targetIndex: 0">
+    <a-gltf-model id="modelRoot" src="#model"></a-gltf-model>
+  </a-entity>
+
+
+  
 </a-scene>
 
 <script>
