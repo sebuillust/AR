@@ -32,50 +32,54 @@
   </head>
 
   <body>
-    <a-scene
-      mindar-image="imageTargetSrc: ./targets/targets.mind;"
-      vr-mode-ui="enabled: false"
-      device-orientation-permission-ui="enabled: false"
-      embedded
-    >
-      <a-camera position="0 0 0"></a-camera>
+<a-scene
+  mindar-image="imageTargetSrc: ./targets/targets.mind;"
+  vr-mode-ui="enabled: false"
+  device-orientation-permission-ui="enabled: false"
+  embedded
+>
+  <a-camera position="0 0 0"></a-camera>
 
-      <a-entity mindar-image-target="targetIndex: 0">
-        <a-video
-          src="#video1"
-          width="1"
-          height="0.6"
-          position="0 0 0"
-        ></a-video>
-      </a-entity>
+  <!-- Target 0 → Video 1 -->
+  <a-entity mindar-image-target="targetIndex: 0">
+    <a-video
+      src="#video1"
+      width="1"
+      height="0.6"
+      position="0 0 0"
+    ></a-video>
+  </a-entity>
 
-      <video
-        id="video1"
-        src="./videos/video1.mp4"
-        loop
-        muted
-        playsinline
-        crossorigin="anonymous"
-      ></video>
-    </a-scene>
+  <!-- Target 1 → Video 2 -->
+  <a-entity mindar-image-target="targetIndex: 1">
+    <a-video
+      src="#video2"
+      width="1"
+      height="0.6"
+      position="0 0 0"
+    ></a-video>
+  </a-entity>
+
+  <!-- Video elements -->
+  <video id="video1" src="./videos/video1.mp4" loop muted playsinline crossorigin="anonymous"></video>
+  <video id="video2" src="./videos/video2.mp4" loop muted playsinline crossorigin="anonymous"></video>
+</a-scene>
 
 <script>
-  const video = document.querySelector("#video1");
+  const video1 = document.querySelector("#video1");
+  const video2 = document.querySelector("#video2");
 
   document.addEventListener("DOMContentLoaded", () => {
-    const target = document.querySelector("[mindar-image-target]");
+    const target0 = document.querySelector('[mindar-image-target="targetIndex: 0"]');
+    const target1 = document.querySelector('[mindar-image-target="targetIndex: 1"]');
 
-    target.addEventListener("targetFound", () => {
-      video.play();
-    });
+    // Target 0
+    target0.addEventListener("targetFound", () => video1.play());
+    target0.addEventListener("targetLost", () => video1.pause());
 
-    target.addEventListener("targetLost", () => {
-      video.pause();
-    });
-  });
-
-  document.addEventListener("click", () => {
-    if (video.paused) video.play();
+    // Target 1
+    target1.addEventListener("targetFound", () => video2.play());
+    target1.addEventListener("targetLost", () => video2.pause());
   });
 </script>
 
