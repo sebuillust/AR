@@ -106,5 +106,34 @@
   });
 </script>
 
+<script>
+  document.addEventListener("DOMContentLoaded", () => {
+    const video = document.querySelector("#webmVideo");
+    const modelRoot = document.querySelector("#modelRoot");
+
+    modelRoot.addEventListener("model-loaded", () => {
+      const mesh = modelRoot.getObject3D("mesh");
+
+      // 找到 GLB 裡的 VideoPlane
+      const videoPlane = mesh.getObjectByName("VideoPlane");
+
+      if (videoPlane) {
+        const texture = new THREE.VideoTexture(video);
+        texture.encoding = THREE.sRGBEncoding;
+
+        videoPlane.material = new THREE.MeshBasicMaterial({
+          map: texture,
+          transparent: true,
+        });
+      }
+    });
+
+    // 播放控制
+    const anchor = document.querySelector("#ar-anchor");
+    anchor.addEventListener("targetFound", () => video.play());
+    anchor.addEventListener("targetLost", () => video.pause());
+  });
+</script>
+    
   </body>
 </html>
