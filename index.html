@@ -8,24 +8,22 @@
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
 
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-  }
-</style>
-
+    <style>
+      html, body {
+        margin: 0;
+        padding: 0;
+        width: 100%;
+        height: 100%;
+        overflow: hidden;
+        position: fixed;
+        top: 0;
+        left: 0;
+      }
+    </style>
   </head>
 
   <body>
 
-<!-- 正確位置：a-assets 必須放在 a-scene 裡，但在所有 entity 之前 -->
 <a-scene
   mindar-image="imageTargetSrc: ./targets/targets.mind;"
   vr-mode-ui="enabled: false"
@@ -34,24 +32,12 @@
 >
   <a-assets>
     <!-- Target 0 的影片 -->
-    <video
-      id="video1"
-      src="./videos/video1.mp4"
-      loop
-      muted
-      playsinline
-      crossorigin="anonymous"
-    ></video>
+    <video id="video1" src="./videos/video1.mp4"
+      loop muted playsinline crossorigin="anonymous"></video>
 
-    <!-- Target 1 的 WebM -->
-    <video
-      id="webmVideo"
-      src="./videos/ERB-Scene1.webm"
-      loop
-      muted
-      playsinline
-      crossorigin="anonymous"
-    ></video>
+    <!-- Target 1 的透明 WebM -->
+    <video id="webmVideo" src="./videos/ERB-Scene1.webm"
+      loop muted playsinline crossorigin="anonymous"></video>
 
     <!-- GLB 模型（裡面有 VideoPlane） -->
     <a-asset-item id="model" src="./models/AR-ERB.glb"></a-asset-item>
@@ -59,17 +45,12 @@
 
   <a-camera position="0 0 0"></a-camera>
 
-  <!-- Target 0 → 播 video1.mp4 -->
+  <!-- Target 0 -->
   <a-entity mindar-image-target="targetIndex: 0">
-    <a-video
-      src="#video1"
-      width="1"
-      height="0.6"
-      position="0 0 0"
-    ></a-video>
+    <a-video src="#video1" width="1" height="0.6" position="0 0 0"></a-video>
   </a-entity>
 
-  <!-- Target 1 → 顯示 GLB + WebM -->
+  <!-- Target 1 -->
   <a-entity id="ar-anchor" mindar-image-target="targetIndex: 1">
     <a-gltf-model id="modelRoot" src="#model"></a-gltf-model>
   </a-entity>
@@ -104,11 +85,29 @@ document.addEventListener("DOMContentLoaded", () => {
     if (videoPlane) {
       const texture = new THREE.VideoTexture(webmVideo);
       texture.encoding = THREE.sRGBEncoding;
+      texture.needsUpdate = true;
 
+      /* ---------------------------
+         修正透明 WebM 的方向 + 比例
+      ----------------------------*/
+
+      // 你的影片是 1000 x 1176 → 比例 = 1000/1176
+      const aspect = 1000 / 1176;
+
+      // 設定材質
       videoPlane.material = new THREE.MeshBasicMaterial({
         map: texture,
         transparent: true,
       });
+
+      // 修正 plane 尺寸（避免偏移）
+      videoPlane.scale.set(1, aspect, 1);
+
+      // 修正方向（打橫 → 旋轉 90°）
+      videoPlane.rotation.z = Math.PI / 2;
+
+      // 避免抖動 → 縮小 plane
+      videoPlane.scale.multiplyScalar(0.8);
     }
   });
 
