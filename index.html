@@ -118,9 +118,11 @@ document.addEventListener("DOMContentLoaded", () => {
   // ⭐ 正確的「立起來 + 正面朝上」旋轉組合
   videoPlane.rotation.set(
     -Math.PI / 2,   // X 軸：立起來
-     0,             // Y 軸：不轉
+     Math.PI,             // Y 軸：不轉
      Math.PI        // Z 軸：翻正（避免頭下腳上）
   );
+
+  videoPlane.position.y = 0.5;   
 
   // ⭐ 這行非常重要：修正 UV 方向，避免變黑
   videoPlane.scale.y = -1;
