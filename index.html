@@ -120,11 +120,11 @@ document.addEventListener("DOMContentLoaded", () => {
   const camera = document.querySelector("a-camera").object3D;
 
   // ⭐ 永遠面向鏡頭（但位置仍跟著卡片）
-  modelRoot.sceneEl.renderer.setAnimationLoop(() => {
-    const camPos = camera.getWorldPosition(new THREE.Vector3());
-    videoPlane.lookAt(camPos);
-  });
-}
+  //modelRoot.sceneEl.renderer.setAnimationLoop(() => {
+    //const camPos = camera.getWorldPosition(new THREE.Vector3());
+    //videoPlane.lookAt(camPos);
+  //});
+//}
 
 
 
