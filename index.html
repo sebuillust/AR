@@ -90,31 +90,51 @@ document.addEventListener("DOMContentLoaded", () => {
   target0.addEventListener("targetLost", () => video1.pause());
 
 
+  video1.pause());
+
+
   /* ---------------------------
-     Target 1 → GLB + WebM
+     Target 1 → GLB + WebM + 動畫
   ----------------------------*/
   const webmVideo = document.querySelector("#webmVideo");
   const modelRoot = document.querySelector("#modelRoot");
 
-  modelRoot.addEventListener("model-loaded", () => {
+  modelRoot.addEventListener("model-loaded", (e) => {
     const mesh = modelRoot.getObject3D("mesh");
+    const gltf = e.detail; // ⭐ 拿到 animations
 
-    // 找到 GLB 裡的 VideoPlane
+    /* ---------------------------
+       ⭐ 播放 GLB 動畫
+    ----------------------------*/
+    if (gltf.animations && gltf.animations.length > 0) {
+      const mixer = new THREE.AnimationMixer(mesh);
+      const action = mixer.clipAction(gltf.animations[0]);
+      action.play();
+
+      const clock = new THREE.Clock();
+
+      // A‑Frame render loop
+      modelRoot.sceneEl.renderer.setAnimationLoop(() => {
+        mixer.update(clock.getDelta());
+      });
+    }
+
+    /* ---------------------------
+       ⭐ 設定 WebM VideoPlane
+    ----------------------------*/
     const videoPlane = mesh.getObjectByName("VideoPlane");
 
     if (videoPlane) {
       const texture = new THREE.VideoTexture(webmVideo);
       texture.encoding = THREE.sRGBEncoding;
 
-    videoPlane.material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      side: THREE.DoubleSide, // 防止背面被剔除
-    });
+      videoPlane.material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide,
+      });
 
-    // 左右翻轉（最安全、最不會出錯）
-    videoPlane.scale.x *= -1;
-
+      videoPlane.scale.x *= -1; // 左右翻轉
     }
   });
 
@@ -122,7 +142,7 @@ document.addEventListener("DOMContentLoaded", () => {
   anchor.addEventListener("targetFound", () => webmVideo.play());
   anchor.addEventListener("targetLost", () => webmVideo.pause());
 });
-</script>
+
 
   </body>
 </html>
