@@ -6,6 +6,7 @@
 
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
     <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/aframe-extras@7.2.0/dist/aframe-extras.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
 
 <style>
@@ -72,7 +73,13 @@
 
   <!-- Target 1 → 顯示 GLB + WebM -->
   <a-entity id="ar-anchor" mindar-image-target="targetIndex: 1">
-    <a-gltf-model id="modelRoot" src="#model" position="0 -4 -3" scale="1.5 1.5 1.5"></a-gltf-model>
+    <a-gltf-model
+      id="modelRoot"
+      src="#model"
+      position="0 -4 -3"
+      scale="1.5 1.5 1.5"
+      animation-mixer="clip: *; loop: repeat"
+    ></a-gltf-model>
   </a-entity>
 
 </a-scene>
