@@ -104,39 +104,31 @@ document.addEventListener("DOMContentLoaded", () => {
     const videoPlane = mesh.getObjectByName("VideoPlane");
 
     if (videoPlane) {
-      const texture = new THREE.VideoTexture(webmVideo);
-      texture.encoding = THREE.sRGBEncoding;
+  const texture = new THREE.VideoTexture(webmVideo);
+  texture.encoding = THREE.sRGBEncoding;
 
-    videoPlane.material = new THREE.MeshBasicMaterial({
-      map: texture,
-      transparent: true,
-      side: THREE.DoubleSide, // 防止背面被剔除
-    });
+  videoPlane.material = new THREE.MeshBasicMaterial({
+    map: texture,
+    transparent: true,
+    side: THREE.DoubleSide,
+  });
 
-
-
-  // ⭐ 正確的「立起來 + 正面朝上」旋轉組合
-  videoPlane.rotation.set(
-    -Math.PI / 2,   // X 軸：立起來
-     Math.PI,             // Y 軸：不轉
-     Math.PI        // Z 軸：翻正（避免頭下腳上）
-  );
-
-  videoPlane.position.y = 0.5;   
-
-  // ⭐ 這行非常重要：修正 UV 方向，避免變黑
-  videoPlane.scale.y = -1;
+  // ⭐ 立起來（固定在卡片上）
+  videoPlane.rotation.set(-Math.PI / 2, 0, 0);
+  videoPlane.scale.y = -1; // 修正 UV
 
   const camera = document.querySelector("a-camera").object3D;
 
-  // ⭐ 永遠面向鏡頭
+  // ⭐ 永遠面向鏡頭（但位置仍跟著卡片）
   modelRoot.sceneEl.renderer.setAnimationLoop(() => {
-    videoPlane.lookAt(camera.position);
+    const camPos = camera.getWorldPosition(new THREE.Vector3());
+    videoPlane.lookAt(camPos);
   });
+}
 
 
-      
-    }
+
+    
   });
 
   const anchor = document.querySelector("#ar-anchor");
