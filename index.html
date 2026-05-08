@@ -1,130 +1,250 @@
 <!DOCTYPE html>
 <html>
-  <head>
-    <meta charset="utf-8" />
-    <title>AR Test</title>
+<head>
+  <meta charset="utf-8" />
+  <title>SEBU AR</title>
 
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
-    <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image.prod.js"></script>
+  <script src="https://aframe.io/releases/1.4.0/aframe.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/mind-ar@1.1.4/dist/mindar-image-aframe.prod.js"></script>
 
-<style>
-  html, body {
-    margin: 0;
-    padding: 0;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
-    position: fixed;
-    top: 0;
-    left: 0;
-  }
-</style>
+  <style>
+    html, body {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      overflow: hidden;
+      position: fixed;
+      top: 0;
+      left: 0;
+    }
+  </style>
+</head>
 
-  </head>
+<body>
 
-  <body>
-
-<!-- 正確位置：a-assets 必須放在 a-scene 裡，但在所有 entity 之前 -->
 <a-scene
-  mindar-image="imageTargetSrc: ./targets/targets.mind; filterMinCF:0.001; filterBeta:0.01;"
+  mindar-image="
+    imageTargetSrc: ./targets/targets.mind;
+    filterMinCF: 0.01;
+    filterBeta: 0.1;
+  "
+  color-space="sRGB"
+  renderer="colorManagement: true; physicallyCorrectLights: true"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
   embedded
 >
 
+  <!-- Assets -->
   <a-assets>
-    <!-- Target 0 的影片 -->
+
+    <!-- Video 1 -->
     <video
       id="video1"
       src="./videos/video1.mp4"
       loop
       muted
       playsinline
+      webkit-playsinline
       crossorigin="anonymous"
     ></video>
 
-    <!-- Target 1 的 WebM -->
+    <!-- WebM -->
     <video
       id="webmVideo"
       src="./videos/ERB-Scene1.webm"
       loop
       muted
       playsinline
+      webkit-playsinline
       crossorigin="anonymous"
     ></video>
 
-    <!-- GLB 模型（裡面有 VideoPlane） -->
-    <a-asset-item id="model" src="./models/AR-ERB.glb"></a-asset-item>
+    <!-- GLB -->
+    <a-asset-item
+      id="model"
+      src="./models/AR-ERB.glb"
+    ></a-asset-item>
+
   </a-assets>
 
+  <!-- Camera -->
   <a-camera position="0 0 0"></a-camera>
 
-  <!-- Target 0 → 播 video1.mp4 -->
+  <!-- =========================
+       TARGET 0
+       普通影片
+  ========================== -->
   <a-entity mindar-image-target="targetIndex: 0">
+
     <a-video
       src="#video1"
       width="1"
       height="0.6"
       position="0 0 0"
     ></a-video>
+
   </a-entity>
 
-  <!-- Target 1 → 顯示 GLB + WebM -->
-  <a-entity id="ar-anchor" mindar-image-target="targetIndex: 1">
-    <a-gltf-model id="modelRoot" src="#model" scale="1.5 1.5 1.5"></a-gltf-model>
-  </a-entity>
+  <!-- =========================
+       TARGET 1
+       只負責 tracking
+  ========================== -->
+  <a-entity
+    id="ar-anchor"
+    mindar-image-target="targetIndex: 1"
+  ></a-entity>
+
+  <!-- =========================
+       真正的 GLB
+       不掛在 anchor 底下
+  ========================== -->
+  <a-gltf-model
+    id="modelRoot"
+    src="#model"
+    scale="1.5 1.5 1.5"
+    upright-billboard
+    visible="false"
+  ></a-gltf-model>
 
 </a-scene>
 
 <script>
+
+/* =====================================================
+   模型：
+   - 跟隨卡片位置
+   - 永遠直立
+   - 永遠面向鏡頭
+===================================================== */
+
+AFRAME.registerComponent("upright-billboard", {
+
+  tick: function () {
+
+    const anchor = document.querySelector("#ar-anchor");
+    const camera = document.querySelector("a-camera");
+
+    if (!anchor || !camera) return;
+
+    // target 不見
+    if (!anchor.object3D.visible) {
+      this.el.object3D.visible = false;
+      return;
+    }
+
+    // target 出現
+    this.el.object3D.visible = true;
+
+    // =========================
+    // 跟隨位置
+    // =========================
+
+    this.el.object3D.position.copy(
+      anchor.object3D.position
+    );
+
+    // =========================
+    // 永遠直立 + 面向鏡頭
+    // =========================
+
+    const cameraPos = new THREE.Vector3();
+
+    camera.object3D.getWorldPosition(cameraPos);
+
+    // 只旋轉 Y 軸
+    this.el.object3D.lookAt(
+      cameraPos.x,
+      this.el.object3D.position.y,
+      cameraPos.z
+    );
+
+    // 如果方向反了就取消註解
+    // this.el.object3D.rotation.y += Math.PI;
+  }
+});
+
+
 document.addEventListener("DOMContentLoaded", () => {
 
-  /* ---------------------------
-     Target 0 → 播 video1.mp4
-  ----------------------------*/
+  /* =========================================
+     Target 0 Video
+  ========================================= */
+
   const video1 = document.querySelector("#video1");
-  const target0 = document.querySelector('[mindar-image-target="targetIndex: 0"]');
 
-  target0.addEventListener("targetFound", () => video1.play());
-  target0.addEventListener("targetLost", () => video1.pause());
+  const target0 = document.querySelector(
+    '[mindar-image-target="targetIndex: 0"]'
+  );
+
+  target0.addEventListener("targetFound", () => {
+    video1.play();
+  });
+
+  target0.addEventListener("targetLost", () => {
+    video1.pause();
+  });
 
 
-  /* ---------------------------
-     Target 1 → GLB + WebM
-  ----------------------------*/
+  /* =========================================
+     GLB + WebM
+  ========================================= */
+
   const webmVideo = document.querySelector("#webmVideo");
+
   const modelRoot = document.querySelector("#modelRoot");
 
   modelRoot.addEventListener("model-loaded", () => {
+
     const mesh = modelRoot.getObject3D("mesh");
 
-    
-    // 找到 GLB 裡的 VideoPlane
+    if (!mesh) return;
+
+    // 找 GLB 裡的 VideoPlane
     const videoPlane = mesh.getObjectByName("VideoPlane");
 
     if (videoPlane) {
-  const texture = new THREE.VideoTexture(webmVideo);
-  texture.encoding = THREE.sRGBEncoding;
 
-  videoPlane.material = new THREE.MeshBasicMaterial({
-    map: texture,
-    transparent: true,
-    side: THREE.DoubleSide,
+      const texture = new THREE.VideoTexture(webmVideo);
+
+      texture.encoding = THREE.sRGBEncoding;
+
+      videoPlane.material = new THREE.MeshBasicMaterial({
+        map: texture,
+        transparent: true,
+        side: THREE.DoubleSide,
+      });
+
+      videoPlane.material.needsUpdate = true;
+    }
   });
 
 
-
-
-
-    
-  });
+  /* =========================================
+     Target Found / Lost
+  ========================================= */
 
   const anchor = document.querySelector("#ar-anchor");
-  anchor.addEventListener("targetFound", () => webmVideo.play());
-  anchor.addEventListener("targetLost", () => webmVideo.pause());
+
+  anchor.addEventListener("targetFound", () => {
+
+    webmVideo.currentTime = 0;
+
+    webmVideo.play();
+
+  });
+
+  anchor.addEventListener("targetLost", () => {
+
+    webmVideo.pause();
+
+  });
+
 });
+
 </script>
 
-  </body>
+</body>
 </html>
