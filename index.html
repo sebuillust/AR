@@ -99,7 +99,11 @@ document.addEventListener("DOMContentLoaded", () => {
   modelRoot.addEventListener("model-loaded", () => {
     const mesh = modelRoot.getObject3D("mesh");
 
-
+  // ⭐ 強制模型永遠在手機正中央
+  modelRoot.sceneEl.renderer.setAnimationLoop(() => {
+    modelRoot.object3D.position.set(0, 0, -1); // 距離相機 1 公尺
+    modelRoot.object3D.rotation.set(0, 0, 0);  // 不旋轉
+  });
 
 
     
