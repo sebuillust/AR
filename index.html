@@ -115,6 +115,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // 左右翻轉（最安全、最不會出錯）
     videoPlane.scale.x *= -1;
+      
+        // ⭐ 讓影像立起來
+  videoPlane.rotation.x = Math.PI / 2;
 
     }
   });
