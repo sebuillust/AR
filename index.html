@@ -99,6 +99,15 @@ document.addEventListener("DOMContentLoaded", () => {
   modelRoot.addEventListener("model-loaded", () => {
     const mesh = modelRoot.getObject3D("mesh");
 
+
+    /* ---------------------------
+       ⭐ 鎖住 Y 軸旋轉（避免左右歪）
+    ----------------------------*/
+    modelRoot.sceneEl.renderer.setAnimationLoop(() => {
+      mesh.rotation.y = 0;   // ← 這行就是 Lock Y rotation
+    });
+
+    
     // 找到 GLB 裡的 VideoPlane
     const videoPlane = mesh.getObjectByName("VideoPlane");
 
