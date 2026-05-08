@@ -127,6 +127,15 @@ document.addEventListener("DOMContentLoaded", () => {
   // ⭐ 這行非常重要：修正 UV 方向，避免變黑
   videoPlane.scale.y = -1;
 
+  const camera = document.querySelector("a-camera").object3D;
+
+  // ⭐ 永遠面向鏡頭
+  modelRoot.sceneEl.renderer.setAnimationLoop(() => {
+    videoPlane.lookAt(camera.position);
+  });
+
+
+      
     }
   });
 
