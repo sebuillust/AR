@@ -106,10 +106,15 @@ document.addEventListener("DOMContentLoaded", () => {
       const texture = new THREE.VideoTexture(webmVideo);
       texture.encoding = THREE.sRGBEncoding;
 
-      videoPlane.material = new THREE.MeshBasicMaterial({
-        map: texture,
-        transparent: true,
-      });
+    videoPlane.material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      side: THREE.DoubleSide, // 防止背面被剔除
+    });
+
+    // 左右翻轉（最安全、最不會出錯）
+    videoPlane.scale.x *= -1;
+
     }
   });
 
