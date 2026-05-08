@@ -72,7 +72,7 @@
 
   <!-- Target 1 → 顯示 GLB + WebM -->
   <a-entity id="ar-anchor" mindar-image-target="targetIndex: 1">
-    <a-gltf-model id="modelRoot" src="#model" scale="1.5 1.5 1.5"></a-gltf-model>
+    <a-gltf-model id="modelRoot" src="#model" position="0 -4 -3" scale="1.5 1.5 1.5"></a-gltf-model>
   </a-entity>
 
 </a-scene>
@@ -98,16 +98,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   modelRoot.addEventListener("model-loaded", () => {
     const mesh = modelRoot.getObject3D("mesh");
-
-
-  modelRoot.sceneEl.renderer.setAnimationLoop(() => {
-    // ⭐ 完全忽略 MindAR 的 tracking，強制固定在相機前方 0.8 公尺
-    modelRoot.object3D.matrixAutoUpdate = false;
-
-    const m = new THREE.Matrix4();
-    m.makeTranslation(0, 0, -0.8); // 距離相機 0.8 公尺
-    modelRoot.object3D.matrix.copy(m);
-  });
 
     
     // 找到 GLB 裡的 VideoPlane
