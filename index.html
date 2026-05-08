@@ -113,18 +113,7 @@ document.addEventListener("DOMContentLoaded", () => {
     side: THREE.DoubleSide,
   });
 
-  // ⭐ 立起來（固定在卡片上）
-  videoPlane.rotation.set(-Math.PI / 2, 0, 0);
-  videoPlane.scale.y = -1; // 修正 UV
 
-  const camera = document.querySelector("a-camera").object3D;
-
-  // ⭐ 永遠面向鏡頭（但位置仍跟著卡片）
-  //modelRoot.sceneEl.renderer.setAnimationLoop(() => {
-    //const camPos = camera.getWorldPosition(new THREE.Vector3());
-    //videoPlane.lookAt(camPos);
-  //});
-//}
 
 
 
