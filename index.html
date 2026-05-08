@@ -115,8 +115,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 
-  // ⭐ 正確的「立起來」方式（X 軸旋轉 -90°）
-  videoPlane.rotation.set(-Math.PI / 2, 0, 0
+  // ⭐ 正確的「立起來」方式（X 軸旋轉 +90°）
+  videoPlane.rotation.set(Math.PI / 2, 0, Math.PI);
+
+  // ⭐ 這行非常重要：修正 UV 方向，避免變黑
+  videoPlane.scale.y = -1;
 
     }
   });
