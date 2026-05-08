@@ -113,11 +113,10 @@ document.addEventListener("DOMContentLoaded", () => {
       side: THREE.DoubleSide, // 防止背面被剔除
     });
 
-    // 左右翻轉（最安全、最不會出錯）
-    videoPlane.scale.x *= -1;
-      
-        // ⭐ 讓影像立起來
-  videoPlane.rotation.x = Math.PI / 2;
+
+
+  // ⭐ 正確的「立起來」方式（X 軸旋轉 -90°）
+  videoPlane.rotation.set(-Math.PI / 2, 0, 0
 
     }
   });
