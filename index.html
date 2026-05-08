@@ -99,12 +99,15 @@ document.addEventListener("DOMContentLoaded", () => {
   modelRoot.addEventListener("model-loaded", () => {
     const mesh = modelRoot.getObject3D("mesh");
 
-  // ⭐ 強制模型永遠在手機正中央
-  modelRoot.sceneEl.renderer.setAnimationLoop(() => {
-    modelRoot.object3D.position.set(0, 0, -1); // 距離相機 1 公尺
-    modelRoot.object3D.rotation.set(0, 0, 0);  // 不旋轉
-  });
 
+  modelRoot.sceneEl.renderer.setAnimationLoop(() => {
+    // ⭐ 完全忽略 MindAR 的 tracking，強制固定在相機前方 0.8 公尺
+    modelRoot.object3D.matrixAutoUpdate = false;
+
+    const m = new THREE.Matrix4();
+    m.makeTranslation(0, 0, -0.8); // 距離相機 0.8 公尺
+    modelRoot.object3D.matrix.copy(m);
+  });
 
     
     // 找到 GLB 裡的 VideoPlane
