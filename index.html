@@ -76,7 +76,11 @@
   </a-entity>
 
   <!-- Target 1 → 顯示 GLB + WebM -->
-  <a-entity id="ar-anchor" mindar-image-target="targetIndex: 1">
+  <a-entity
+    id="ar-anchor"
+    mindar-image-target="targetIndex: 1"
+    anchor-smoothing="positionAlpha: 0.12; rotationAlpha: 0.1; scaleAlpha: 0.08"
+  >
     <a-entity id="contentRoot" position="0 0 0">
       <a-gltf-model
         id="modelRoot"
@@ -92,6 +96,48 @@
 
 <script>
 document.addEventListener("DOMContentLoaded", () => {
+  AFRAME.registerComponent("anchor-smoothing", {
+    schema: {
+      positionAlpha: { type: "number", default: 0.12 },
+      rotationAlpha: { type: "number", default: 0.1 },
+      scaleAlpha: { type: "number", default: 0.08 },
+    },
+
+    init() {
+      this.smoothedPosition = new THREE.Vector3();
+      this.smoothedQuaternion = new THREE.Quaternion();
+      this.smoothedScale = new THREE.Vector3();
+      this.initialized = false;
+    },
+
+    tick(_, delta) {
+      const object3D = this.el.object3D;
+      if (!object3D.visible) {
+        this.initialized = false;
+        return;
+      }
+
+      const positionAlpha = 1 - Math.pow(1 - this.data.positionAlpha, delta / 16.67);
+      const rotationAlpha = 1 - Math.pow(1 - this.data.rotationAlpha, delta / 16.67);
+      const scaleAlpha = 1 - Math.pow(1 - this.data.scaleAlpha, delta / 16.67);
+
+      if (!this.initialized) {
+        this.smoothedPosition.copy(object3D.position);
+        this.smoothedQuaternion.copy(object3D.quaternion);
+        this.smoothedScale.copy(object3D.scale);
+        this.initialized = true;
+      } else {
+        this.smoothedPosition.lerp(object3D.position, positionAlpha);
+        this.smoothedQuaternion.slerp(object3D.quaternion, rotationAlpha);
+        this.smoothedScale.lerp(object3D.scale, scaleAlpha);
+      }
+
+      object3D.position.copy(this.smoothedPosition);
+      object3D.quaternion.copy(this.smoothedQuaternion);
+      object3D.scale.copy(this.smoothedScale);
+    },
+  });
+
 
   /* ---------------------------
      Target 0 → 播 video1.mp4
