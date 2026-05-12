@@ -28,7 +28,7 @@
 
 <!-- 正確位置：a-assets 必須放在 a-scene 裡，但在所有 entity 之前 -->
 <a-scene
-  mindar-image="imageTargetSrc: ./targets/targets.mind; filterMinCF:0.001; filterBeta:0.01;"
+  mindar-image="imageTargetSrc: ./targets/targets.mind; filterMinCF: 0.00001; filterBeta: 1;"
   vr-mode-ui="enabled: false"
   device-orientation-permission-ui="enabled: false"
   embedded
@@ -59,7 +59,11 @@
     <a-asset-item id="model" src="./models/AR-ERB.glb"></a-asset-item>
   </a-assets>
 
-  <a-camera position="0 0 0"></a-camera>
+  <a-camera
+    position="0 0 0"
+    look-controls="enabled: false"
+    wasd-controls="enabled: false"
+  ></a-camera>
 
   <!-- Target 0 → 播 video1.mp4 -->
   <a-entity mindar-image-target="targetIndex: 0">
@@ -73,13 +77,15 @@
 
   <!-- Target 1 → 顯示 GLB + WebM -->
   <a-entity id="ar-anchor" mindar-image-target="targetIndex: 1">
-    <a-gltf-model
-      id="modelRoot"
-      src="#model"
-      position="0 -4 -3"
-      scale="1.5 1.5 1.5"
-      animation-mixer="clip: *; loop: repeat"
-    ></a-gltf-model>
+    <a-entity id="contentRoot" position="0 0 0">
+      <a-gltf-model
+        id="modelRoot"
+        src="#model"
+        position="0 0 0"
+        scale="0.65 0.65 0.65"
+        animation-mixer="clip: *; loop: repeat"
+      ></a-gltf-model>
+    </a-entity>
   </a-entity>
 
 </a-scene>
