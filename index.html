@@ -79,7 +79,7 @@
   <a-entity
     id="ar-anchor"
     mindar-image-target="targetIndex: 1"
-    anchor-smoothing="positionAlpha: 0.05; rotationAlpha: 0.04; scaleAlpha: 0.02"
+    anchor-smoothing="positionAlpha: 0.05; depthAlpha: 0.015; rotationAlpha: 0.04; scaleAlpha: 0.02; depthDeadband: 0.002"
   >
     <a-entity id="contentRoot" position="0 0 0">
       <a-gltf-model
@@ -99,14 +99,19 @@ document.addEventListener("DOMContentLoaded", () => {
   AFRAME.registerComponent("anchor-smoothing", {
     schema: {
       positionAlpha: { type: "number", default: 0.12 },
+      depthAlpha: { type: "number", default: 0.05 },
       rotationAlpha: { type: "number", default: 0.1 },
       scaleAlpha: { type: "number", default: 0.08 },
+      depthDeadband: { type: "number", default: 0 },
     },
 
     init() {
       this.smoothedPosition = new THREE.Vector3();
       this.smoothedQuaternion = new THREE.Quaternion();
       this.smoothedScale = new THREE.Vector3();
+      this.targetPosition = new THREE.Vector3();
+      this.targetQuaternion = new THREE.Quaternion();
+      this.targetScale = new THREE.Vector3();
       this.initialized = false;
     },
 
@@ -118,18 +123,29 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       const positionAlpha = 1 - Math.pow(1 - this.data.positionAlpha, delta / 16.67);
+      const depthAlpha = 1 - Math.pow(1 - this.data.depthAlpha, delta / 16.67);
       const rotationAlpha = 1 - Math.pow(1 - this.data.rotationAlpha, delta / 16.67);
       const scaleAlpha = 1 - Math.pow(1 - this.data.scaleAlpha, delta / 16.67);
+      this.targetPosition.copy(object3D.position);
+      this.targetQuaternion.copy(object3D.quaternion);
+      this.targetScale.copy(object3D.scale);
 
       if (!this.initialized) {
-        this.smoothedPosition.copy(object3D.position);
-        this.smoothedQuaternion.copy(object3D.quaternion);
-        this.smoothedScale.copy(object3D.scale);
+        this.smoothedPosition.copy(this.targetPosition);
+        this.smoothedQuaternion.copy(this.targetQuaternion);
+        this.smoothedScale.copy(this.targetScale);
         this.initialized = true;
       } else {
-        this.smoothedPosition.lerp(object3D.position, positionAlpha);
-        this.smoothedQuaternion.slerp(object3D.quaternion, rotationAlpha);
-        this.smoothedScale.lerp(object3D.scale, scaleAlpha);
+        this.smoothedPosition.x += (this.targetPosition.x - this.smoothedPosition.x) * positionAlpha;
+        this.smoothedPosition.y += (this.targetPosition.y - this.smoothedPosition.y) * positionAlpha;
+
+        const depthDelta = this.targetPosition.z - this.smoothedPosition.z;
+        if (Math.abs(depthDelta) > this.data.depthDeadband) {
+          this.smoothedPosition.z += depthDelta * depthAlpha;
+        }
+
+        this.smoothedQuaternion.slerp(this.targetQuaternion, rotationAlpha);
+        this.smoothedScale.lerp(this.targetScale, scaleAlpha);
       }
 
       object3D.position.copy(this.smoothedPosition);
